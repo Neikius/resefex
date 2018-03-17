@@ -1,0 +1,9 @@
+---
+- name: Build, install and run everything
+  hosts: localhost
+
+  roles:
+    - common
+    - mq
+    - db
+#    - resefex

@@ -1,0 +1,17 @@
+---
+- name: Install kafka
+  docker_container:
+    name: '{{ mq_name }}'
+    image: spotify/kafka
+    state: started
+    restart: yes
+    restart_policy: unless-stopped
+    ports:
+    - "2181:2181"
+    - "9092:9092"
+    networks:
+    - name: '{{ net_name }}'
+      ipv4_address: '{{ mq_ip }}'
+    env:
+      ADVERTISED_HOST: '{{ mq_ip }}'
+      ADVERTISED_PORT: 9092

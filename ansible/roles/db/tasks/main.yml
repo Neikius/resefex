@@ -1,0 +1,19 @@
+---
+- name: Install postgres
+  docker_container:
+    name: '{{ db_name }}'
+    image: postgres:9.6
+    state: started
+    restart: yes
+    restart_policy: unless-stopped
+    volumes:
+    - '{{ db_volume }}:/var/lib/postgresql/data'
+    ports:
+    - "5423:5432"
+    networks:
+    - name: '{{ net_name }}'
+      ipv4_address: '{{ db_id }}'
+    env:
+      POSTGRES_PASSWORD: '{{ db_pwd }}'
+      POSTGRES_USER: '{{ db_user }}'
+      POSTGRES_DB: '{{ db_user }}'

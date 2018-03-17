@@ -1,0 +1,13 @@
+net_name: resefex-net
+net_subnet: 10.52.52.0/24
+net_gateway: 10.52.52.1
+net_ip_range: 10.52.52.0/24
+
+mq_name: resefex-mq
+mq_ip: 10.52.52.100
+
+db_name: resefex-db
+db_ip: 10.52.52.101
+db_volume: trader-db
+db_user: resefex
+db_pwd: "BZ+oQj3t.0=$Cf2El5q!JuPxx^s!$c"
