@@ -13,7 +13,7 @@ requires = [
     'psycopg2-binary',
     'gunicorn',
     'eventlet',
-    'jsonpickle',
+    'jsonpickle'
 ]
 
 setup(
@@ -31,5 +31,8 @@ setup(
     main = resefex:main
     [console_scripts]
     initialize_db = resefex.db.initialize:main
+    processor = resefex.engine.processor:main
+    balance = resefex.storage.balance_store:main
+    store_orderbookdata = resefex.storage.store_orderbookdata:main
     """
 )

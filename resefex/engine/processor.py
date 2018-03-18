@@ -1,29 +1,25 @@
 import jsonpickle
+import json
+
+import sys
 from kafka import KafkaConsumer, KafkaProducer
 
-class OrderBook:
-    id: str
-    price: float
-    amount: float
-    type: str
-    operation: str
+from resefex.db.orderbook import OrderBook, OrderBookEntry
 
-    def __init__(self, *initial_data, **kwargs):
-        for dictionary in initial_data:
-            for key in dictionary:
-                setattr(self, key, dictionary[key])
-        for key in kwargs:
-            setattr(self, key, kwargs[key])
+def main(argv=sys.argv):
+    orderBookProcessor = OrderBookProcessor()
 
 class OrderBookProcessor:
     consumer = KafkaConsumer(bootstrap_servers='10.52.52.100:9092',
-                             value_deserializer=lambda v: jsonpickle.decode(v))
-#                             value_deserializer=lambda v: json.loads(v))
-    producer = KafkaProducer(bootstrap_servers='10.52.52.100:9092',
-                             value_serializer=lambda v: jsonpickle.encode(v).encode('utf-8'))
-#                         value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+                             value_deserializer=lambda v: json.loads(v))
+#                             value_deserializer=lambda v: jsonpickle.decode(v))
 
-    orderbook = dict()
+    producer = KafkaProducer(bootstrap_servers='10.52.52.100:9092',
+                             value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+#                             value_serializer=lambda v: jsonpickle.encode(v).encode('utf-8'))
+
+
+    orderbook = OrderBook()
 
     def __init__(self):
         self.consumer.subscribe(topics=['limit_order'])
@@ -31,63 +27,71 @@ class OrderBookProcessor:
 
     def loop(self):
         while(1):
-            records = self.consumer.poll(timeout_ms=1000, max_records=1)
+            records = self.consumer.poll(timeout_ms=500)
             print("Record:" + repr(records))
             self.process_record(records)
 
-            print("InternalOrderbook:" + jsonpickle.encode(self.orderbook))
+            print("InternalOrderbook:" + self.orderbook.toJSON())
             self.process_orderbook(self.orderbook)
 
     def process_record(self, records: dict):
         if len(records) < 1:
             return
         for key in records:
-            record = OrderBook(records[key][0].value)
-            if record.operation == 'REMOVE':
-                del self.orderbook[record.id]
-            elif record.operation == 'ADD':
-                self.orderbook[record.id] = record
+            for record in records[key]:
+                entry = OrderBookEntry(record.value)
+                if entry.operation == 'REMOVE':
+                    self.orderbook.remove(entry.type, entry.id)
+                elif entry.operation == 'ADD':
+                    self.orderbook.add(entry.type, entry)
 
-    def process_orderbook(self, orderbook: dict):
-        if len(orderbook) < 1:
+    def process_orderbook(self, orderbook: OrderBook):
+        if orderbook.isEmpty():
             return
-        top_bid = self.top_bid(orderbook)
-        top_ask = self.top_ask(orderbook)
+        top_bid = orderbook.topBid()
+        top_ask = orderbook.topAsk()
 
         while top_bid.price >= top_ask.price:
             self.execute_orders(orderbook, top_bid, top_ask)
 
-            top_bid = self.top_bid(orderbook)
-            top_ask = self.top_ask(orderbook)
+            top_bid = orderbook.topBid()
+            top_ask = orderbook.topAsk()
 
         self.push_orderbook(orderbook)
 
-    def execute_orders(self, orderbook, top_bid, top_ask):
-        print("TODO execute balance changes")
-
+    def execute_orders(self, orderbook: OrderBook, top_bid: OrderBookEntry, top_ask: OrderBookEntry):
         if top_bid.amount > top_ask.amount:
-            orderbook[top_bid.id].amount -= top_ask.amount
-            del orderbook[top_ask.id]
+            amount = top_bid.amount - top_ask.amount
+            new_top_bid_amount = top_bid.amount - amount
+            self.producer.send('balance_update', {
+                "bid_user": top_bid.owner_id,
+                "ask_user": top_ask.owner_id,
+                "amount": amount,
+                "price": top_bid.price
+            })
+            top_bid.amount = new_top_bid_amount
+            orderbook.remove("ASK", top_ask.id)
         elif top_bid.amount < top_ask.amount:
-            orderbook[top_ask.id].amount -= top_bid.amount
-            del orderbook[top_bid.id]
+            amount = top_ask.amount - top_bid.amount
+            new_top_ask_amount = top_ask.amount - amount
+            self.producer.send('balance_update', {
+                "bid_user": top_bid.owner_id,
+                "ask_user": top_ask.owner_id,
+                "amount": amount,
+                "price": top_bid.price
+            })
+            top_ask.amount = new_top_ask_amount
+            orderbook.remove("BID", top_bid.id)
         else:
-            del orderbook[top_ask.id]
-            del orderbook[top_bid.id]
-
-    def top_bid(self, orderbook: dict):
-        top = OrderBook({"price":float('0')})
-        for i in orderbook.keys():
-            if orderbook[i].type == "BID" and orderbook[i].price > top.price:
-                top = orderbook[i]
-        return top
-
-    def top_ask(self, orderbook):
-        top = OrderBook({"price":float('inf')})
-        for i in orderbook.keys():
-            if orderbook[i].type == "ASK" and orderbook[i].price < top.price:
-                top = orderbook[i]
-        return top
+            print("Send order execution data ")
+            self.producer.send('balance_update', {
+                "bid_user": top_bid.owner_id,
+                "ask_user": top_ask.owner_id,
+                "amount": top_bid.amount,
+                "price": top_bid.price
+            })
+            orderbook.remove("ASK", top_ask.id)
+            orderbook.remove("BID", top_bid.id)
 
     def push_orderbook(self, orderbook):
-        self.producer.send('orderbook', self.orderbook)
+        self.producer.send('orderbook', self.orderbook.toJSON())

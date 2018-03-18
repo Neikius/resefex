@@ -2,3 +2,6 @@
 *.iml
 *.retry
 *.egg-info
+node_modules/**
+.editorconfig
+.gitkeep

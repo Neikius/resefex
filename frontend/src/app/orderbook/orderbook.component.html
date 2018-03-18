@@ -1,0 +1,65 @@
+
+<button (click)="refreshData()">Refresh</button>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-3">
+      <label>User <input [(ngModel)]="user"></label>
+    </div>
+    <div class="col-sm-3">
+      <label>Price <input [(ngModel)]="price"></label>
+    </div>
+    <div class="col-sm-3">
+      <label>Amount <input [(ngModel)]="amount"></label>
+    </div>
+    <div class="col-sm-3">
+      <label>ASK/BID <input [(ngModel)]="operation"></label>
+    </div>
+    <button (click)="createOrder()">Place order</button>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-6">
+      <h3>Bids</h3>
+      <div class="row">
+        <div class="col-sm-4">
+          <h5>ID</h5>
+        </div>
+        <div class="col-sm-2">
+          <h5>Price</h5>
+        </div>
+        <div class="col-sm-2">
+          <h5>Amount</h5>
+        </div>
+        <div class="col-sm-2">
+          <h5>Owner</h5>
+        </div>
+      </div>
+      <app-order
+        *ngFor="let orderBookBid of bids"
+        [entry]="orderBookBid">
+      </app-order>
+    </div>
+    <div class="col-sm-6">
+      <h3>Asks</h3>
+      <div class="row">
+        <div class="col-sm-4">
+          <h5>ID</h5>
+        </div>
+        <div class="col-sm-2">
+          <h5>Price</h5>
+        </div>
+        <div class="col-sm-2">
+          <h5>Amount</h5>
+        </div>
+        <div class="col-sm-2">
+          <h5>Owner</h5>
+        </div>
+      </div>
+      <app-order
+        *ngFor="let orderBookAsk of asks"
+        [entry]="orderBookAsk">
+      </app-order>
+    </div>
+  </div>
+</div>
