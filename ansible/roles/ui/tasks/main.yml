@@ -1,0 +1,31 @@
+---
+- name: Prepare Dockerfile template
+  template: src=Dockerfile.j2 dest=../frontend/Dockerfile
+
+- name: Install deps
+  shell:
+    cmd: npm install
+    chdir: ../frontend
+
+- name: Build site
+  shell:
+    cmd: npm run-script build
+    chdir: ../frontend
+
+- name: Build image
+  docker_image:
+    path: ../frontend
+    name: resefex-frontend-image
+
+- name: Start angular
+  docker_container:
+    name: resefex-frontend
+    image: resefex-frontend-image
+    state: started
+    restart: yes
+    restart_policy: unless-stopped
+    ports:
+    - "8090:80"
+    networks:
+    - name: '{{ net_name }}'
+      ipv4_address: '{{ ui_ip }}'

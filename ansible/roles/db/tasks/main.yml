@@ -12,7 +12,7 @@
     - "5423:5432"
     networks:
     - name: '{{ net_name }}'
-      ipv4_address: '{{ db_id }}'
+      ipv4_address: '{{ db_ip }}'
     env:
       POSTGRES_PASSWORD: '{{ db_pwd }}'
       POSTGRES_USER: '{{ db_user }}'

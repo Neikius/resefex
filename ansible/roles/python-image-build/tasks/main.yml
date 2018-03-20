@@ -1,0 +1,8 @@
+---
+- name: Prepare Dockerfile template
+  template: src=Dockerfile.j2 dest=../Dockerfile
+
+- name: Build image
+  docker_image:
+    path: ../
+    name: "{{ image_name }}"

@@ -1,0 +1,13 @@
+---
+- name: Build, install and run MQ/DB (might be useful for development)
+  hosts: localhost
+
+  tasks:
+  - include_role:
+      name: common
+
+  - include_role:
+      name: db
+
+  - include_role:
+      name: mq

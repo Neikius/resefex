@@ -1,0 +1,14 @@
+FROM python:alpine
+
+WORKDIR /usr/src/app
+
+COPY setup.py runapp.py development.ini ./
+COPY resefex ./resefex/
+
+RUN apk update && \
+    apk add postgresql-libs && \
+    apk add --virtual .build-deps gcc python3-dev musl-dev postgresql-dev && \
+    python3 -m pip install -e . && \
+    apk --purge del .build-deps
+
+ENTRYPOINT ["pserve", "development.ini"]

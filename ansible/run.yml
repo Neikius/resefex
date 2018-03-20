@@ -2,8 +2,83 @@
 - name: Build, install and run everything
   hosts: localhost
 
-  roles:
-    - common
-    - mq
-    - db
-#    - resefex
+  tasks:
+  - include_role:
+      name: common
+
+  - include_role:
+      name: db
+
+  - include_role:
+      name: mq
+
+  - include_role:
+      name: python-image-build
+    vars:
+      image_name: "{{ python_image_name }}"
+
+  - name: Init the DB
+    docker_container:
+      name: resefex-initdb
+      image: '{{ python_image_name }}'
+      state: started
+      restart: no
+      restart_policy: False
+      networks:
+      - name: '{{ net_name }}'
+      entrypoint: initialize_db development.ini
+
+  - name: Start pyramid
+    docker_container:
+      name: resefex-pyramid
+      image: '{{ python_image_name }}'
+      state: started
+      restart: yes
+      restart_policy: unless-stopped
+      ports:
+      - "6543:6543"
+      networks:
+      - name: '{{ net_name }}'
+        ipv4_address: '{{ api_ip }}'
+        links:
+        - '{{ db_name }}:db'
+
+  - name: Start processor
+    docker_container:
+      name: resefex-processor
+      image: '{{ python_image_name }}'
+      state: started
+      restart: yes
+      restart_policy: unless-stopped
+      networks:
+      - name: '{{ net_name }}'
+      entrypoint: processor development.ini
+
+  - name: Start store_balance
+    docker_container:
+      name: resefex-store-balance
+      image: '{{ python_image_name }}'
+      state: started
+      restart: yes
+      restart_policy: unless-stopped
+      networks:
+      - name: '{{ net_name }}'
+        links:
+        - '{{ db_name }}:db'
+      entrypoint: store_balance development.ini
+
+  - name: Start store_orderbookdata
+    docker_container:
+      name: resefex-store-orderbookdata
+      image: '{{ python_image_name }}'
+      state: started
+      restart: yes
+      restart_policy: unless-stopped
+      networks:
+      - name: '{{ net_name }}'
+        links:
+        - '{{ db_name }}:db'
+      entrypoint: store_orderbookdata development.ini
+
+  - include_role:
+      name: ui

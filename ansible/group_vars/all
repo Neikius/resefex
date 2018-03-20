@@ -11,3 +11,8 @@ db_ip: 10.52.52.101
 db_volume: trader-db
 db_user: resefex
 db_pwd: "BZ+oQj3t.0=$Cf2El5q!JuPxx^s!$c"
+
+python_image_name: python-image
+
+ui_ip: 10.52.52.10
+api_ip: 10.52.52.20

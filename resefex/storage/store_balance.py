@@ -21,9 +21,9 @@ def main(argv=sys.argv):
     settings = get_appsettings(config_uri)
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
-    balanceStore = BalanceStore()
+    storeBalance = StoreBalance()
 
-class BalanceStore:
+class StoreBalance:
 
     consumer = KafkaConsumer(bootstrap_servers='10.52.52.100:9092',
                              value_deserializer=lambda v: json.loads(v))

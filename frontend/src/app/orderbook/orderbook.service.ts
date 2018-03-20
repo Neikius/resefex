@@ -6,7 +6,7 @@ import "rxjs/Rx";
 export class OrderbookService {
   constructor(private http: Http) {}
   getOrderbookBids() {
-    return this.http.get('http://localhost:6543/api/v1/orderbook/bids')
+    return this.http.get('http://10.52.52.20:6543/api/v1/orderbook/bids')
       .map(
         (response: Response) => {
           return response.json();
@@ -14,7 +14,7 @@ export class OrderbookService {
       );
   }
   getOrderbookAsks() {
-    return this.http.get('http://localhost:6543/api/v1/orderbook/asks')
+    return this.http.get('http://10.52.52.20:6543/api/v1/orderbook/asks')
       .map(
         (response: Response) => {
           return response.json();
@@ -22,7 +22,7 @@ export class OrderbookService {
       );
   }
   placeOrder(user: number, amount: number, price: number, type: string) {
-    let url = 'http://localhost:6543/api/v1/order/limit/'+type+'/'+amount+'/'+price;
+    let url = 'http://10.52.52.20:6543/api/v1/order/limit/'+type+'/'+amount+'/'+price;
     let myHeaders = new Headers();
     myHeaders.append('Authorization', 'Bearer ' + user);
     let options = new RequestOptions({headers: myHeaders});
