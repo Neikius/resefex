@@ -20,6 +20,7 @@ import {AppRoutingModule} from "./app.router.module";
 import {AuthorizationGuard} from "./guard";
 import {AuthInterceptor} from "./interceptor";
 import {environment} from '../environments/environment';
+import {NgModule} from '@angular/core';
 
 @NgModule({
   declarations: [

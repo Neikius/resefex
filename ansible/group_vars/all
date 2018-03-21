@@ -6,12 +6,14 @@ net_ip_range: 10.52.52.0/24
 mq_name: resefex-mq
 mq_ip: 10.52.52.100
 
+# this is the container name, db name is the same as user
 db_name: resefex-db
 db_ip: 10.52.52.101
-db_volume: trader-db
+db_volume: resefex-db
 db_user: resefex
 db_pwd: "BZ+oQj3t.0=$Cf2El5q!JuPxx^s!$c"
 
+# this is the container name, db name is the same as user
 auth_db_name: resefex-auth-db
 auth_db_ip: 10.52.52.102
 auth_db_volume: resefex-auth-db

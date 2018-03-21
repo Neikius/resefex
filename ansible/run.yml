@@ -1,6 +1,7 @@
 ---
 - name: Build, install and run everything
   hosts: localhost
+# become: true
 
   tasks:
   - include_role:

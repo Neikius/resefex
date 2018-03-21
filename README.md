@@ -16,22 +16,35 @@ Kafka is a MQ system that can eliminate potential for dataloss. TODO: Our end ne
 Simple REST api on python/pyramid. TODO: swagger or similar
 
 ### 5. Angular UI
-Simple web client
+Simple web client, local use for now.
+
+For external access config files would need to be changed.
 
 # Deploy
 
-0. Use GNU/Linux; ansible>=2.4, npm
+* Use GNU/Linux
+* ansible>=2.4
+* npm 8.10
+* python ~3.6, virtualenv, pip 
+* a member of docker group OR sudo permissions and uncomment # become:true line at the top of run.yml
+
+In case of this error: ``, what it itself suggest usually works, but it might be necessary to install the module using package manager or the module could be named "docker" instead of "docker-py", depends on the distro.  
+
+0. Prepare virtualenv 1 level above this file
 1. In folder `./ansible` run `ansible-playbook run.yml`
 2. Watch
 3. The result should be something like this (though all times will be in minutes/seconds):
     ```
-    9b5d5d6b2ea9        resefex-frontend-image   "nginx -g 'daemon ..."   6 minutes ago       Up 6 minutes        0.0.0.0:8090->80/tcp                             resefex-frontend
-    2736e7dfbbbd        python-image             "store_orderbookda..."   28 minutes ago      Up 17 minutes                                                        resefex-store-orderbookdata
-    764d2578edc5        python-image             "store_balance dev..."   28 minutes ago      Up 28 minutes                                                        resefex-store-balance
-    0048f13ca089        python-image             "processor develop..."   29 minutes ago      Up 29 minutes                                                        resefex-processor
-    5a09e73d989f        python-image             "pserve developmen..."   29 minutes ago      Up 29 minutes       0.0.0.0:6543->6543/tcp                           resefex-pyramid
-    4668c74c65c7        postgres:9.6             "docker-entrypoint..."   4 days ago          Up 30 minutes       0.0.0.0:5423->5432/tcp                           resefex-db
-    be43c77b32f5        spotify/kafka            "supervisord -n"         4 days ago          Up 30 minutes       0.0.0.0:2181->2181/tcp, 0.0.0.0:9092->9092/tcp   resefex-mq
+    CONTAINER ID        IMAGE                    COMMAND                  CREATED             STATUS              PORTS                                            NAMES
+    517a682f6030        resefex-frontend-image   "nginx -g 'daemon ..."   30 minutes ago      Up 30 minutes       0.0.0.0:8090->80/tcp                             resefex-frontend
+    148763e87f73        resefex-keycloak         "/opt/jboss/docker..."   About an hour ago   Up 39 minutes       0.0.0.0:8091->8080/tcp                           resefex-auth
+    c8be422c6973        postgres:9               "docker-entrypoint..."   About an hour ago   Up 39 minutes       5432/tcp                                         resefex-auth-db
+    21355c7fa9b6        resefex-python-image     "store_orderbookda..."   About an hour ago   Up 39 minutes                                                        resefex-store-orderbookdata
+    ac42d6383843        resefex-python-image     "store_balance pro..."   About an hour ago   Up 39 minutes                                                        resefex-store-balance
+    d78f51dd3165        resefex-python-image     "processor prod.ini"     About an hour ago   Up 39 minutes                                                        resefex-processor
+    108bcf9a275e        resefex-python-image     "pserve prod.ini"        About an hour ago   Up 40 minutes       0.0.0.0:6543->6543/tcp                           resefex-pyramid
+    61611bd245fb        spotify/kafka            "supervisord -n"         About an hour ago   Up 40 minutes       0.0.0.0:2181->2181/tcp, 0.0.0.0:9092->9092/tcp   resefex-mq
+    92f218e227aa        postgres:9.6             "docker-entrypoint..."   About an hour ago   Up 40 minutes       0.0.0.0:5423->5432/tcp                           resefex-db
     ```
 4. Access the UI [http://10.52.52.10](http://10.52.52.10)
 
@@ -41,7 +54,8 @@ Simple web client
 
 # DEV Setup
 
-0. Use GNU/Linux; Python ~3.6, ansible>=2.4, npm
+Same requirements as deploy
+
 1. virtualenv in `../`
 2. In folder `./ansible` run `ansible-playbook run-dev.yml`
 3. Prepare with `pip install -e .`
@@ -53,5 +67,3 @@ Simple web client
 6. Run the API: `pserve development.ini --reload`
 7. Prepare the npm: `npm install` and run gui `npm start`
 8. Access the UI [http://localhost:4200](http://localhost:4200)
-
-TODO: orderbook.service.ts API ips won't work for this setup :(
