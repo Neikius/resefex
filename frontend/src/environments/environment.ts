@@ -4,5 +4,9 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-  production: false
+  production: false,
+
+  pyramidUrl: "http://localhost:6543",
+  angularUrl: "http://localhost:4200",
+  authUrl: "http://10.52.52.103:8080/auth/realms/master"
 };

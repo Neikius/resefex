@@ -12,7 +12,25 @@ db_volume: trader-db
 db_user: resefex
 db_pwd: "BZ+oQj3t.0=$Cf2El5q!JuPxx^s!$c"
 
-python_image_name: python-image
+auth_db_name: resefex-auth-db
+auth_db_ip: 10.52.52.102
+auth_db_volume: resefex-auth-db
+auth_db_user: resefex-auth
+auth_db_pwd: "nD:Qy4oC+WLSF4RV+B2D4WfoNTrsde"
+
+auth_name: resefex-auth
+auth_ip: 10.52.52.103
+auth_user: admin
+auth_pwd: admin
+
+python_image_name: resefex-python-image
 
 ui_ip: 10.52.52.10
 api_ip: 10.52.52.20
+
+# config-related
+
+debug: False
+db_hostname: "{{ db_name }}"
+service_listen_address: 0.0.0.0
+service_listen_port: 6534

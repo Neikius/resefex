@@ -1,0 +1,49 @@
+---
+- name: "Create a new keycloak image with data"
+  docker_image:
+    path: ./roles/auth/files/
+    name: resefex-keycloak
+
+- name: "Launch database container"
+  docker_container:
+    name: '{{ auth_db_name }}'
+    image: postgres:9
+    state: started
+    restart: yes
+    restart_policy: unless-stopped
+    env:
+      POSTGRES_PASSWORD: '{{ auth_db_pwd }}'
+      POSTGRES_USER: '{{ auth_db_user }}'
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+    - '{{ auth_db_volume }}:/var/lib/postgresql/data/pgdata'
+    networks:
+    - name: '{{ net_name }}'
+      ipv4_address: '{{ auth_db_ip }}'
+
+- name: "Launch keycloak container with import"
+  docker_container:
+    name: '{{ auth_name }}'
+    image: resefex-keycloak
+    state: started
+    restart: yes
+    restart_policy: unless-stopped
+    ports:
+    - "8091:8080"
+    env:
+      POSTGRES_PASSWORD: '{{ auth_db_pwd }}'
+      POSTGRES_USER: '{{ auth_db_user }}'
+      POSTGRES_DATABASE: '{{ auth_db_user }}'
+      KEYCLOAK_USER: '{{ auth_user }}'
+      KEYCLOAK_PASSWORD: '{{ auth_pwd }}'
+    networks:
+    - name: '{{ net_name }}'
+      ipv4_address: '{{ auth_ip }}'
+      links:
+      - '{{ auth_db_name }}:postgres'
+    command:
+    - -Dkeycloak.migration.action=import
+    - -Dkeycloak.migration.provider=singleFile
+    - -Dkeycloak.migration.file=/tmp/realm-export.json
+    - -b
+    - 0.0.0.0

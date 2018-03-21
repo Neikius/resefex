@@ -30,9 +30,12 @@ def main(argv=sys.argv):
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
     with transaction.manager:
-        user1 = User(id=1, balance=10.0, stuff=10.0)
-        user2 = User(id=2, balance=15.0, stuff=0.0)
-        DBSession.add(user1)
-        DBSession.add(user2)
-        orderBook = OrderBookStorage(id=1, asks=[], bids=[])
-        DBSession.add(orderBook)
+        if DBSession.query(User).filter_by(id=1).first() == None:
+            user1 = User(id=1, balance=10.0, stuff=10.0, name="user1")
+            DBSession.add(user1)
+        if DBSession.query(User).filter_by(id=2).first() == None:
+            user2 = User(id=2, balance=15.0, stuff=0.0, name="user2")
+            DBSession.add(user2)
+        if DBSession.query(OrderBookStorage).first() == None:
+            orderBook = OrderBookStorage(id=1, asks=[], bids=[])
+            DBSession.add(orderBook)

@@ -23,16 +23,24 @@ Base = declarative_base()
 
 class Order(Base):
     __tablename__ = 'order'
-    id = Column(Integer, primary_key=True)
+    id = Column(String, primary_key=True)
+    owner_id = Column(Integer)
     price = Column(Numeric)
     amount = Column(Numeric)
     type = Column(String)
 
+    def toDict(self):
+        return {"id":self.id, "owner_id":self.owner_id, "price":float(self.price), "amount":float(self.amount), "type":self.type}
+
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
     balance = Column(Numeric)
     stuff = Column(Numeric)
+
+    def toDict(self):
+        return {"id":self.id, "name":self.name, "balance":float(self.balance), "stuff":float(self.stuff)}
 
 class OrderBookStorage(Base):
     __tablename__ = 'orderbookstorage'

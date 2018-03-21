@@ -1,10 +1,19 @@
-
-<button (click)="refreshData()">Refresh</button>
 <div class="container">
   <div class="row">
-    <div class="col-sm-3">
-      <label>User <input [(ngModel)]="user"></label>
+    Username: <b>{{ username }}</b>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      Balance: <b>{{ userDetails.balance }}</b>
     </div>
+    <div class="col-md-4">
+      Stuff: <b>{{ userDetails.stuff }}</b>
+    </div>
+  </div>
+</div>
+<hr>
+<div class="container">
+  <div class="row">
     <div class="col-sm-3">
       <label>Price <input [(ngModel)]="price"></label>
     </div>
@@ -17,7 +26,9 @@
     <button (click)="createOrder()">Place order</button>
   </div>
 </div>
+<hr>
 <div class="container">
+  <button (click)="refreshData()">Refresh order book</button>
   <div class="row">
     <div class="col-sm-6">
       <h3>Bids</h3>

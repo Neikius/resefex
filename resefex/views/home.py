@@ -10,4 +10,4 @@ class ApiViews:
         route_name='home'
     )
     def home(self):
-        return {'name': 'Home View'}
+        return {'name': 'Nothing to see here'}

@@ -2,6 +2,9 @@
 - name: Prepare Dockerfile template
   template: src=Dockerfile.j2 dest=../frontend/Dockerfile
 
+- name: Copy config file
+  copy: src=default.conf dest=../frontend/default.conf
+
 - name: Install deps
   shell:
     cmd: npm install

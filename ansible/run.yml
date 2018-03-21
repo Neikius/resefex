@@ -26,7 +26,9 @@
       restart_policy: False
       networks:
       - name: '{{ net_name }}'
-      entrypoint: initialize_db development.ini
+        links:
+        - '{{ db_name }}:db'
+      entrypoint: initialize_db prod.ini
 
   - name: Start pyramid
     docker_container:
@@ -42,6 +44,7 @@
         ipv4_address: '{{ api_ip }}'
         links:
         - '{{ db_name }}:db'
+        - '{{ mq_name }}:mq'
 
   - name: Start processor
     docker_container:
@@ -52,7 +55,9 @@
       restart_policy: unless-stopped
       networks:
       - name: '{{ net_name }}'
-      entrypoint: processor development.ini
+        links:
+        - '{{ mq_name }}:mq'
+      entrypoint: processor prod.ini
 
   - name: Start store_balance
     docker_container:
@@ -65,7 +70,8 @@
       - name: '{{ net_name }}'
         links:
         - '{{ db_name }}:db'
-      entrypoint: store_balance development.ini
+        - '{{ mq_name }}:mq'
+      entrypoint: store_balance prod.ini
 
   - name: Start store_orderbookdata
     docker_container:
@@ -78,7 +84,11 @@
       - name: '{{ net_name }}'
         links:
         - '{{ db_name }}:db'
-      entrypoint: store_orderbookdata development.ini
+        - '{{ mq_name }}:mq'
+      entrypoint: store_orderbookdata prod.ini
+
+  - include_role:
+      name: auth
 
   - include_role:
       name: ui

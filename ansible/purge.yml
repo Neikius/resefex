@@ -1,0 +1,73 @@
+---
+- name: Remove everything installed by run.yml
+  hosts: localhost
+
+  tasks:
+  - docker_network:
+      name: '{{ net_name }}'
+      state: absent
+      force: True
+
+  - docker_container:
+      name: '{{ db_name }}'
+      state: absent
+
+  - docker_volume:
+      name: '{{ db_volume }}'
+      state: absent
+      force: True
+
+  - docker_container:
+      name: '{{ mq_name }}'
+      state: absent
+
+  - docker_image:
+      name: "{{ python_image_name }}"
+      state: absent
+      force: True
+
+  - docker_container:
+      name: resefex-initdb
+      state: absent
+
+  - docker_container:
+      name: resefex-pyramid
+      state: absent
+
+  - docker_container:
+      name: resefex-processor
+      state: absent
+
+  - docker_container:
+      name: resefex-store-balance
+      state: absent
+
+  - docker_container:
+      name: resefex-store-orderbookdata
+      state: absent
+
+  - docker_container:
+      name: '{{ auth_db_name }}'
+      state: absent
+
+  - docker_container:
+      name: '{{ auth_name }}'
+      state: absent
+
+  - docker_volume:
+      name: '{{ auth_db_volume }}'
+      state: absent
+
+  - docker_image:
+      name: resefex-keycloak
+      state: absent
+      force: True
+
+  - docker_image:
+      name: resefex-frontend-image
+      state: absent
+      force: True
+
+  - docker_container:
+      name: resefex-frontend
+      state: absent

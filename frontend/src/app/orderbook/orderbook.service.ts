@@ -1,36 +1,41 @@
 import {Injectable} from "@angular/core";
-import {Http, Response, RequestOptions, Headers} from "@angular/http";
+import {HttpClient, HttpResponse } from '@angular/common/http';
 import "rxjs/Rx";
+import {OrderBookEntry} from "./order/orderbookentry";
+import {UserDetails} from "./user.details";
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class OrderbookService {
-  constructor(private http: Http) {}
+
+  constructor(private http: HttpClient) {}
   getOrderbookBids() {
-    return this.http.get('http://10.52.52.20:6543/api/v1/orderbook/bids')
+    return this.http.get<OrderBookEntry[]>(environment.pyramidUrl + '/api/v1/orderbook/bids')
       .map(
-        (response: Response) => {
-          return response.json();
+        (bids) => {
+          return bids;
         }
       );
   }
   getOrderbookAsks() {
-    return this.http.get('http://10.52.52.20:6543/api/v1/orderbook/asks')
+    return this.http.get<OrderBookEntry[]>(environment.pyramidUrl + '/api/v1/orderbook/asks')
       .map(
-        (response: Response) => {
-          return response.json();
+        (asks) => {
+          return asks;
         }
       );
   }
   placeOrder(user: number, amount: number, price: number, type: string) {
-    let url = 'http://10.52.52.20:6543/api/v1/order/limit/'+type+'/'+amount+'/'+price;
-    let myHeaders = new Headers();
-    myHeaders.append('Authorization', 'Bearer ' + user);
-    let options = new RequestOptions({headers: myHeaders});
-    return this.http.put( url, null, options)
+    let url = environment.pyramidUrl + '/api/v1/order/limit/'+type+'/'+amount+'/'+price;
+    return this.http.put( url, null, {headers: {'User': user + ''}} )
       .map(
-        (response: Response) => {
-          return response.json();
+        (response: HttpResponse<String>) => {
+          return response;
         }
       );
+  }
+  getUserDetails() {
+    let url = environment.pyramidUrl + '/api/v1/user/details';
+    return this.http.get<UserDetails>(url);
   }
 }

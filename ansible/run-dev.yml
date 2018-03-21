@@ -11,3 +11,6 @@
 
   - include_role:
       name: mq
+
+  - include_role:
+      name: auth

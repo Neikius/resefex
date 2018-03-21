@@ -1,3 +1,4 @@
+import logging
 import sys
 
 import transaction
@@ -18,22 +19,34 @@ def main(argv=sys.argv):
     settings = get_appsettings(config_uri)
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
-    storeData = StoreOrderBookData()
+    storeData = StoreOrderBookData(settings['kafka.url'])
 
 class StoreOrderBookData:
-    consumer = KafkaConsumer(bootstrap_servers='10.52.52.100:9092',
-                             value_deserializer=lambda v: json.loads(v))
 
-    def __init__(self):
+    log = logging.getLogger(__name__)
+
+    consumer: KafkaConsumer
+
+    def __init__(self, kafka_url: str):
+        self.log.info("Initialized with kafka_url=" + kafka_url)
+        self.consumer = KafkaConsumer(bootstrap_servers=kafka_url,
+                                 value_deserializer=lambda v: json.loads(v))
+
+        self.consumer.subscribe(['orderbook'])
+        self.log.debug("Init OK")
         while(1):
             with transaction.manager:
-                self.consumer.subscribe(['orderbook'])
+                self.log.debug("Polling records")
                 records = self.consumer.poll(1000)
-                orderbook = {}
+                orderbook = None
                 for key in records:
+                    self.log.debug("Got " + str(len(records[key])) + " records")
                     for record in records[key]:
                         orderbook = OrderBook(json.loads(record.value))
 
-                storage: OrderBookStorage = DBSession.query(OrderBookStorage).filter_by(id=1).one()
-                storage.asks = orderbook.asks
-                storage.bids = orderbook.bids
+                if orderbook != None:
+                    self.log.debug("Got latest orderbook=" + repr(orderbook))
+                    storage: OrderBookStorage = DBSession.query(OrderBookStorage).filter_by(id=1).one()
+                    storage.asks = orderbook.asks
+                    storage.bids = orderbook.bids
+                    self.log.debug("Stored latest orderbook status")

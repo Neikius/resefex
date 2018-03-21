@@ -1,0 +1,49 @@
+[app:main]
+use = egg:resefex
+{% if debug %}
+pyramid.reload_templates = true
+pyramid.includes = pyramid_debugtoolbar
+{% endif %}
+
+sqlalchemy.url = postgresql+psycopg2://{{ db_user }}:{{ db_pwd }}@{{ db_hostname }}/{{ db_user }}
+
+[server:main]
+use = egg:waitress#main
+listen = {{ service_listen_address }}:{{ service_listen_port }}
+
+
+# Begin logging configuration
+
+[loggers]
+keys = root, resefex, sqlalchemy.engine.base.Engine
+
+[logger_resefex]
+level = {{ 'DEBUG' if debug else 'INFO' }}
+handlers =
+qualname = resefex
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = INFO
+handlers = console
+
+[logger_sqlalchemy.engine.base.Engine]
+level = INFO
+handlers =
+qualname = sqlalchemy.engine.base.Engine
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
+
+# End logging configuration

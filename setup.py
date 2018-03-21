@@ -13,7 +13,10 @@ requires = [
     'psycopg2-binary',
     'gunicorn',
     'eventlet',
-    'jsonpickle'
+    "pycryptodomex",
+    "requests",
+    "six",
+    "future"
 ]
 
 setup(

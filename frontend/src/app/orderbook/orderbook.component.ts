@@ -1,5 +1,7 @@
 import {Component} from "@angular/core";
 import {OrderbookService} from "./orderbook.service";
+import {OidcSecurityService} from "angular-auth-oidc-client";
+import {UserDetails} from "./user.details";
 
 @Component({
   selector: 'app-orderbook',
@@ -15,11 +17,35 @@ export class OrderbookComponent {
   price: number = 1;
   operation: string = "ASK";
 
-  constructor(private orderbookService: OrderbookService){}
+  username = "";
+  userDetails : UserDetails;
+
+  constructor(private orderbookService: OrderbookService,
+              private oidcSecurityService: OidcSecurityService){
+
+    this.refreshData();
+    this.refreshUser();
+  }
+
+  refreshUser() {
+    this.orderbookService.getUserDetails().subscribe(
+      (userDetails) => this.userDetails = userDetails,
+      (error) => console.log(error)
+    );
+
+    this.oidcSecurityService.getUserData().subscribe(
+      (user) => this.username = user.preferred_username,
+      (error) => console.error(error)
+    );
+  }
 
   createOrder() {
     this.orderbookService.placeOrder(this.user, this.amount, this.price, this.operation).subscribe(
-      (id) => console.log(id),
+      (id) => {
+        this.refreshData();
+        this.refreshUser();
+        console.log(id)
+      },
       (error) => console.error(error)
     );
   }

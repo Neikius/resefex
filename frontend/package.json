@@ -26,7 +26,8 @@
     "zone.js": "^0.8.19",
     "bootstrap": "~4.0.0",
     "jquery": "~1.9.1",
-    "popper.js": "~1.12.9"
+    "popper.js": "~1.12.9",
+    "angular-auth-oidc-client": "4.1.0"
   },
   "devDependencies": {
     "@angular/cli": "~1.7.3",
